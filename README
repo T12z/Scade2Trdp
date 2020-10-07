@@ -1,0 +1,44 @@
+Description:
+    This is a Stdin to Stdout filter to convert the data model of an ANSYS SCADE Suite operator to an XML-dataset description for IEC 61375 TRDP (Train Realtime Data Protocol). It should just compile using the Makefile provided - after you installed the mxml library (see below).
+
+    First, build your Scade model in ANSYS SCADE Suite, with KCG >= 6.5, i.e., the newer vesion since roughly 2015 with distinct-bit-width data types. Older KCGs (the SCADE code generator) do not produce the required mapping.xml. Generate the code for a certain root-operator. (note: You can also specifiy a sub-operator to typebridge as a parameter.) Locate the mapping.xml file in the generated files and make it available to typebridge. No other files are required.
+
+    Typebridge will translate all required Scade data structures to TRDP data-sets. Some notes:
+
+    * If you use separate parameters for your root operator - which I recommend, Typebridge will skip all trivial/basic-type and array parameters. TRDP needs everything to be initially wrapped in a data-set.
+
+    * It is very ok, to have cascaded structures / data-sets.
+
+    * It is not valid, to have arrays of arrays. They just do not exist in TRDP and there is no straight-forward way to emulate it. Typebridge will complain when it encounters them. However, you can define a structure containing an array of structures, containing another array of structures.
+
+    * Same is for enumerations - don't use them on external interfaces. They do not exist in TRDP and it is not safe to route them outside model bounds.
+
+    * Typebridge tries to inherit package names into TRDP data-set names. Yet, there are length limitations.
+
+    At the very end, you can use the output to complete your TRDP-XML file. You still need to define a lot of other things, like the device-cofiguration, the bus-interface-list with telegrams, trdp-process and com-parameters.
+
+    PS I always also wanted to write a tool for the other way around, ie., create Scade-model-stubs from a TRDP-XML, but this can only reliably be done in Windows using the Java-Scade-API while holding a license key.
+
+Building:
+    Install libmxml-dev, e.g.,
+
+    sudo apt install libmxml-dev
+
+    Then run
+
+    make
+
+Running:
+	o/typebridge <path/to/mapping.xml >trdp-datasets.xml
+
+Depends:
+    libmxml-dev (native Deb/Ubnt Package, or see https://github.com/michaelrsweet/mxml/ )
+
+Author:
+    Thorsten Schulz
+
+Copyright:
+    (c) 2018-2020 Universität Rostock
+
+License:
+    Apache 2.0 (on GNU/Linux see /usr/share/common-licenses/Apache-2.0)
